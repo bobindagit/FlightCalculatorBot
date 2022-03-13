@@ -11,10 +11,8 @@ class TelegramBot:
     def __init__(self):
         logger = logging.getLogger('TELEGRAM BOT')
 
-        bot_token = os.environ.get('BOT_TOKEN')
-
         # Main telegram UPDATER
-        self.updater = Updater(token=bot_token, use_context=True)
+        self.updater = Updater(token=os.environ.get('BOT_TOKEN'), use_context=True)
         self.dispatcher = self.updater.dispatcher
 
         # Handlers
