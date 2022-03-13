@@ -12,3 +12,7 @@
 > API_TOKEN - aviapages API token
 4. Run script
 > run.sh
+
+# TESTS
+Run script
+> run_tests.sh
