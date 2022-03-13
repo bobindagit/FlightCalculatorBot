@@ -43,8 +43,6 @@ class TelegramHandler:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=message,
                                  parse_mode=ParseMode.HTML)
-
-        # Functional message
         self.info_message(update, context)
 
     def unknown(self, update, context) -> None:
@@ -56,7 +54,7 @@ class TelegramHandler:
     def error(self, update, context) -> None:
         error_message = context.error.args[0]
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=f'<b>{error_message}</b>',
+                                 text=f'<i>{error_message}</i>',
                                  parse_mode=ParseMode.HTML)
         self.info_message(update, context)
 
@@ -76,8 +74,6 @@ class TelegramHandler:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=aviapages_api.generate_calculator_message(query),
                                  parse_mode=ParseMode.HTML)
-
-        # Functional message
         self.info_message(update, context)
 
 

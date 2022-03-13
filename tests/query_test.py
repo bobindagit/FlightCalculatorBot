@@ -62,10 +62,6 @@ class QueryTest(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             bot.get_query_structure(query)
         self.assertEqual(INVALID_QUERY, e.exception.args[0])
-        query = 'KIV-RIX 0000 Global 5000 (IASA regulations)'
-        with self.assertRaises(ValueError) as e:
-            bot.get_query_structure(query)
-        self.assertEqual(INVALID_QUERY, e.exception.args[0])
         query = 'KI-RIX 1 Global 5000 (IASA regulations)'
         with self.assertRaises(ValueError) as e:
             bot.get_query_structure(query)
