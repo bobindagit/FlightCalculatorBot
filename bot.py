@@ -30,7 +30,8 @@ class TelegramBot:
 
 class TelegramHandler:
 
-    def start(self, update, context) -> None:
+    @classmethod
+    def start(cls, update, context) -> None:
         user = update.effective_chat
 
         # Welcome message
@@ -39,20 +40,30 @@ class TelegramHandler:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=message,
                                  parse_mode=ParseMode.HTML)
-        self.info_message(update, context)
+        cls.info_message(update, context)
 
-    def unknown(self, update, context) -> None:
+    @classmethod
+    def unknown(cls, update, context) -> None:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text='⚠️ <i>Unknown command</i> ⚠️',
                                  parse_mode=ParseMode.HTML)
-        self.info_message(update, context)
+        cls.info_message(update, context)
 
-    def error(self, update, context) -> None:
+    @classmethod
+    def error(cls, update, context) -> None:
         error_message = context.error.args[0]
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=f'<i>{error_message}</i>',
                                  parse_mode=ParseMode.HTML)
-        self.info_message(update, context)
+        cls.info_message(update, context)
+
+    @classmethod
+    def user_message(cls, update, context) -> None:
+        query = cls.get_query_structure(update.message.text)
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=aviapages_api.generate_calculator_message(query),
+                                 parse_mode=ParseMode.HTML)
+        cls.info_message(update, context)
 
     @staticmethod
     def info_message(update, context) -> None:
@@ -65,13 +76,6 @@ class TelegramHandler:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=message,
                                  parse_mode=ParseMode.HTML)
-
-    def user_message(self, update, context) -> None:
-        query = self.get_query_structure(update.message.text)
-        context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=aviapages_api.generate_calculator_message(query),
-                                 parse_mode=ParseMode.HTML)
-        self.info_message(update, context)
 
     @staticmethod
     def get_query_structure(text: str) -> dict:
