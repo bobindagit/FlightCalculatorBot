@@ -59,7 +59,7 @@ class TelegramHandler:
 
     @classmethod
     def user_message(cls, update, context) -> None:
-        query = cls.get_query_structure(update.message.text)
+        query = get_query_structure(update.message.text)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=aviapages_api.generate_calculator_message(query),
                                  parse_mode=ParseMode.HTML)
@@ -77,8 +77,8 @@ class TelegramHandler:
                                  text=message,
                                  parse_mode=ParseMode.HTML)
 
-    @staticmethod
-    def get_query_structure(text: str) -> dict:
+
+def get_query_structure(text: str) -> dict:
         invalid_query = '⚠️ Invalid query ⚠️'
 
         # Text preparation for processing
