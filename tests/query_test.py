@@ -13,7 +13,8 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'UUWW',
             'arrival_airport': 'EVRA',
             'pax': 2,
-            'aircraft': 'Challenger 300'
+            'aircraft': 'Challenger 300',
+            'avoid': set()
         }
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'KIV-RIX 3 E35L'
@@ -21,7 +22,8 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'KIV',
             'arrival_airport': 'RIX',
             'pax': 3,
-            'aircraft': 'E35L'
+            'aircraft': 'E35L',
+            'avoid': set()
         }
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'Heathrow - Geneva 3 pax Global 5000 (IASA regulations)'
@@ -29,7 +31,8 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'Heathrow',
             'arrival_airport': 'Geneva',
             'pax': 3,
-            'aircraft': 'Global 5000 (IASA regulations)'
+            'aircraft': 'Global 5000 (IASA regulations)',
+            'avoid': set()
         }
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'KIV-- RIX 3 PAX E35L'
@@ -37,7 +40,8 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'KIV',
             'arrival_airport': 'RIX',
             'pax': 3,
-            'aircraft': 'E35L'
+            'aircraft': 'E35L',
+            'avoid': set()
         }
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'KIV -  RIX  35  PAX   E35L'
@@ -45,7 +49,57 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'KIV',
             'arrival_airport': 'RIX',
             'pax': 35,
-            'aircraft': 'E35L'
+            'aircraft': 'E35L',
+            'avoid': set()
+        }
+        self.assertEqual(bot.get_query_structure(query), answer)
+        query = 'UUWW - EVRA 2 pax Global 5000 no Ukraine, Belarus'
+        answer = {
+            'departure_airport': 'UUWW',
+            'arrival_airport': 'EVRA',
+            'pax': 2,
+            'aircraft': 'Global 5000',
+            'avoid': {'Ukraine', 'Belarus'}
+        }
+        self.assertEqual(bot.get_query_structure(query), answer)
+        query = 'UUWW - EVRA 2 pax Global 5000 no ULAA; UHMM'
+        answer = {
+            'departure_airport': 'UUWW',
+            'arrival_airport': 'EVRA',
+            'pax': 2,
+            'aircraft': 'Global 5000',
+            'avoid': {'ULAA', 'UHMM'}
+        }
+        self.assertEqual(bot.get_query_structure(query), answer)
+        query = 'UUWW - EVRA 6 Global 5000 no   ULAA  ;   UHMM'
+        answer = {
+            'departure_airport': 'UUWW',
+            'arrival_airport': 'EVRA',
+            'pax': 6,
+            'aircraft': 'Global 5000',
+            'avoid': {'ULAA', 'UHMM'}
+        }
+        self.assertEqual(bot.get_query_structure(query), answer)
+
+    def test_correct_query_multiline(self):
+        query = 'KIV - RIX 1 Global 5000\n' \
+                ''
+        answer = {
+            'departure_airport': 'UUWW',
+            'arrival_airport': 'EVRA',
+            'pax': 6,
+            'aircraft': 'Global 5000',
+            'avoid': {'ULAA', 'UHMM'}
+        }
+        self.assertEqual(bot.get_query_structure(query), answer)
+        query = 'KIV - RIX 1 Global 5000\n' \
+                'RIX-VKO 1 Global 5000'
+        answer = {
+            'departure_airport': 'UUWW',
+            'arrival_airport': 'EVRA',
+            'pax': 6,
+            'aircraft': 'Global 5000',
+            'avoid': {'ULAA', 'UHMM'}
         }
         self.assertEqual(bot.get_query_structure(query), answer)
 
@@ -123,12 +177,13 @@ class APIRequestTest(unittest.TestCase):
         }
         aircraft = 'Challenger 300'
         pax = 3
+        avoid = {'countries': [], 'firs': []}
         answer = {
             'airway_time': '03:05',
             'airway_distance': 2426.934,
             'warnings': []
         }
-        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax), answer)
+        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax, avoid), answer)
         departure = {
             'airport_icao': 'LSGG',
             'airport_iata': 'GVA',
@@ -141,12 +196,13 @@ class APIRequestTest(unittest.TestCase):
         }
         aircraft = 'Challenger 300'
         pax = 2
+        avoid = {'countries': [], 'firs': []}
         answer = {
             'airway_time': '03:05',
             'airway_distance': 2426.934,
             'warnings': []
         }
-        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax), answer)
+        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax, avoid), answer)
         departure = {
             'airport_icao': 'LSGG',
             'airport_iata': '',
@@ -159,12 +215,91 @@ class APIRequestTest(unittest.TestCase):
         }
         aircraft = 'Challenger 300'
         pax = 2
+        avoid = {'countries': [], 'firs': []}
         answer = {
             'airway_time': '03:05',
             'airway_distance': 2426.934,
             'warnings': []
         }
-        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax), answer)
+        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax, avoid), answer)
+        departure = {
+            'airport_icao': 'LSGG',
+            'airport_iata': '',
+            'airport_name': ''
+        }
+        arrival = {
+            'airport_icao': '',
+            'airport_iata': 'VKO',
+            'airport_name': ''
+        }
+        aircraft = 'Challenger 300'
+        pax = 2
+        avoid = {'countries': [], 'firs': []}
+        answer = {
+            'airway_time': '03:05',
+            'airway_distance': 2426.934,
+            'warnings': []
+        }
+        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax, avoid), answer)
+
+    def test_calculator_correct_avoid(self):
+        departure = {
+            'airport_icao': '',
+            'airport_iata': 'KIV',
+            'airport_name': ''
+        }
+        arrival = {
+            'airport_icao': '',
+            'airport_iata': 'VKO',
+            'airport_name': ''
+        }
+        aircraft = 'Challenger 300'
+        pax = 1
+        avoid = {'countries': ['Ukraine', 'Belarus'], 'firs': []}
+        answer = {
+            'airway_time': '02:58',
+            'airway_distance': 2322.858,
+            'warnings': []
+        }
+        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax, avoid), answer)
+        departure = {
+            'airport_icao': '',
+            'airport_iata': 'KIV',
+            'airport_name': ''
+        }
+        arrival = {
+            'airport_icao': '',
+            'airport_iata': 'VKO',
+            'airport_name': ''
+        }
+        aircraft = 'Challenger 300'
+        pax = 1
+        avoid = {'countries': ['Ukraine', 'Belarus'], 'firs': []}
+        answer = {
+            'airway_time': '02:58',
+            'airway_distance': 2322.858,
+            'warnings': []
+        }
+        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax, avoid), answer)
+        departure = {
+            'airport_icao': '',
+            'airport_iata': 'KIV',
+            'airport_name': ''
+        }
+        arrival = {
+            'airport_icao': '',
+            'airport_iata': 'VKO',
+            'airport_name': ''
+        }
+        aircraft = 'Challenger 300'
+        pax = 5
+        avoid = {'countries': [], 'firs': ['ULAA', 'UHMM']}
+        answer = {
+            'airway_time': '01:35',
+            'airway_distance': 1134.879,
+            'warnings': []
+        }
+        self.assertEqual(aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax, avoid), answer)
 
     def test_calculator_incorrect(self):
         with self.assertRaises(RuntimeError) as e:
@@ -180,13 +315,20 @@ class APIRequestTest(unittest.TestCase):
             }
             aircraft = 'Challenger 300'
             pax = 2
-            answer = {
-                'airway_time': '03:05',
-                'airway_distance': 2426.934,
-                'warnings': []
-            }
-            aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax)
+            avoid = {'countries': [], 'firs': []}
+            aviapages_api.calculate_flight_parameters(departure, arrival, aircraft, pax, avoid)
         self.assertEqual('⚠️\nWeight exceeded, please reduce payload or choose a techstop\n⚠️', e.exception.args[0])
+
+    def test_avoid_parser(self):
+        query = {'Ukraine', 'Belarus'}
+        answer = {'countries': {'Ukraine', 'Belarus'}, 'firs': set()}
+        self.assertEqual(aviapages_api.get_avoid_parameters(query), answer)
+        query = {'Ukraine', 'UHMM'}
+        answer = {'countries': {'Ukraine'}, 'firs': {'UHMM'}}
+        self.assertEqual(aviapages_api.get_avoid_parameters(query), answer)
+        query = {'USA', 'ULAA'}
+        answer = {'countries': {'USA'}, 'firs': {'ULAA'}}
+        self.assertEqual(aviapages_api.get_avoid_parameters(query), answer)
 
     # def test_aircraft_correct_request(self):
     #     query = 'Challenger 300'

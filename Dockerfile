@@ -8,5 +8,3 @@ COPY requirements.txt /working/FlightCalculatorBot/
 RUN pip install --no-cache-dir -r /working/FlightCalculatorBot/requirements.txt
 
 COPY . /working/FlightCalculatorBot
-
-CMD ["python", "-u", "main.py"]
