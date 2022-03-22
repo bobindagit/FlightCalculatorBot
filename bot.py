@@ -66,7 +66,7 @@ class TelegramHandler:
     @staticmethod
     def info_message(update, context) -> None:
         message = f'<i>Enter query in the format</i>:\n' \
-                  f'[<b>DEPARTURE AIRPORT</b> ICAO/IATA/NAME] <b>-</b> [<b>ARRIVAL AIRPORT</b> ICAO/IATA/NAME] [<b>PASSENGER COUNT(PAX)</b>] [<b>AIRCRAFT</b>] [<b>no COUNTRIES, FIRs</b>]*\n\n' \
+                  f'[<b>DEPARTURE AIRPORT</b> ICAO/IATA/NAME] <b>-</b> [<b>ARRIVAL AIRPORT</b> ICAO/IATA/NAME] [<b>PASSENGER COUNT(PAX)</b>] [<b>AIRCRAFT</b>] [<b>no COUNTRIES, FIRs</b>]<b>*</b>\n\n' \
                   f'🟢 <b>*</b> - optional\n' \
                   f'🟢 <b>Use multilines to add leg(s)</b>\n\n' \
                   f'<i>Examples</i>:\n' \
