@@ -3,105 +3,193 @@ import bot
 import aviapages_api
 
 INVALID_QUERY = '⚠️ Invalid query ⚠️'
+INVALID_QUERY_COUNT = '⚠️ Each line should be started with count number ⚠️'
 
 
 class QueryTest(unittest.TestCase):
 
     def test_correct_query(self):
         query = 'UUWW - EVRA 2Pax Challenger 300'
-        answer = {
+        answer = [{
+            'count': '',
             'departure_airport': 'UUWW',
             'arrival_airport': 'EVRA',
             'pax': 2,
             'aircraft': 'Challenger 300',
             'avoid': set()
-        }
+        }]
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'KIV-RIX 3 E35L'
-        answer = {
+        answer = [{
+            'count': '',
             'departure_airport': 'KIV',
             'arrival_airport': 'RIX',
             'pax': 3,
             'aircraft': 'E35L',
             'avoid': set()
-        }
+        }]
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'Heathrow - Geneva 3 pax Global 5000 (IASA regulations)'
-        answer = {
+        answer = [{
+            'count': '',
             'departure_airport': 'Heathrow',
             'arrival_airport': 'Geneva',
             'pax': 3,
             'aircraft': 'Global 5000 (IASA regulations)',
             'avoid': set()
-        }
+        }]
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'KIV-- RIX 3 PAX E35L'
-        answer = {
+        answer = [{
+            'count': '',
             'departure_airport': 'KIV',
             'arrival_airport': 'RIX',
             'pax': 3,
             'aircraft': 'E35L',
             'avoid': set()
-        }
+        }]
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'KIV -  RIX  35  PAX   E35L'
-        answer = {
+        answer = [{
+            'count': '',
             'departure_airport': 'KIV',
             'arrival_airport': 'RIX',
             'pax': 35,
             'aircraft': 'E35L',
             'avoid': set()
-        }
+        }]
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'UUWW - EVRA 2 pax Global 5000 no Ukraine, Belarus'
-        answer = {
+        answer = [{
+            'count': '',
             'departure_airport': 'UUWW',
             'arrival_airport': 'EVRA',
             'pax': 2,
             'aircraft': 'Global 5000',
             'avoid': {'Ukraine', 'Belarus'}
-        }
+        }]
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'UUWW - EVRA 2 pax Global 5000 no ULAA; UHMM'
-        answer = {
+        answer = [{
+            'count': '',
             'departure_airport': 'UUWW',
             'arrival_airport': 'EVRA',
             'pax': 2,
             'aircraft': 'Global 5000',
             'avoid': {'ULAA', 'UHMM'}
-        }
+        }]
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'UUWW - EVRA 6 Global 5000 no   ULAA  ;   UHMM'
-        answer = {
+        answer = [{
+            'count': '',
             'departure_airport': 'UUWW',
             'arrival_airport': 'EVRA',
             'pax': 6,
             'aircraft': 'Global 5000',
             'avoid': {'ULAA', 'UHMM'}
-        }
+        }]
         self.assertEqual(bot.get_query_structure(query), answer)
 
     def test_correct_query_multiline(self):
         query = 'KIV - RIX 1 Global 5000\n' \
                 ''
-        answer = {
-            'departure_airport': 'UUWW',
-            'arrival_airport': 'EVRA',
-            'pax': 6,
+        answer = [{
+            'count': '',
+            'departure_airport': 'KIV',
+            'arrival_airport': 'RIX',
+            'pax': 1,
             'aircraft': 'Global 5000',
-            'avoid': {'ULAA', 'UHMM'}
-        }
+            'avoid': set()
+        }]
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'KIV - RIX 1 Global 5000\n' \
                 'RIX-VKO 1 Global 5000'
-        answer = {
-            'departure_airport': 'UUWW',
-            'arrival_airport': 'EVRA',
-            'pax': 6,
-            'aircraft': 'Global 5000',
-            'avoid': {'ULAA', 'UHMM'}
-        }
+        answer = [
+            {
+                'count': '',
+                'departure_airport': 'KIV',
+                'arrival_airport': 'RIX',
+                'pax': 1,
+                'aircraft': 'Global 5000',
+                'avoid': set()
+            },
+            {
+                'count': '',
+                'departure_airport': 'RIX',
+                'arrival_airport': 'VKO',
+                'pax': 1,
+                'aircraft': 'Global 5000',
+                'avoid': set()
+            }
+        ]
         self.assertEqual(bot.get_query_structure(query), answer)
+        query = '1. KIV - RIX 1 Global 5000\n' \
+                '2 RIX-VKO 1 Global 5000'
+        answer = [
+            {
+                'count': '1',
+                'departure_airport': 'KIV',
+                'arrival_airport': 'RIX',
+                'pax': 1,
+                'aircraft': 'Global 5000',
+                'avoid': set()
+            },
+            {
+                'count': '2',
+                'departure_airport': 'RIX',
+                'arrival_airport': 'VKO',
+                'pax': 1,
+                'aircraft': 'Global 5000',
+                'avoid': set()
+            }
+        ]
+        self.assertEqual(bot.get_query_structure(query), answer)
+        query = '1) KIV - RIX 1 Global 5000\n' \
+                '2. RIX-VKO 1 Global 5000'
+        answer = [
+            {
+                'count': '1',
+                'departure_airport': 'KIV',
+                'arrival_airport': 'RIX',
+                'pax': 1,
+                'aircraft': 'Global 5000',
+                'avoid': set()
+            },
+            {
+                'count': '2',
+                'departure_airport': 'RIX',
+                'arrival_airport': 'VKO',
+                'pax': 1,
+                'aircraft': 'Global 5000',
+                'avoid': set()
+            }
+        ]
+        self.assertEqual(bot.get_query_structure(query), answer)
+        query = '2 KIV - RIX 1 Global 5000\n' \
+                '1 RIX-VKO 1 Global 5000'
+        answer = [
+            {
+                'count': '2',
+                'departure_airport': 'RIX',
+                'arrival_airport': 'VKO',
+                'pax': 1,
+                'aircraft': 'Global 5000',
+                'avoid': set()
+            },
+            {
+                'count': '1',
+                'departure_airport': 'KIV',
+                'arrival_airport': 'RIX',
+                'pax': 1,
+                'aircraft': 'Global 5000',
+                'avoid': set()
+            }
+        ]
+        query = ' KIV - RIX 1 Global 5000\n' \
+                '2. RIX-VKO 1 Global 5000'
+        with self.assertRaises(ValueError) as e:
+            bot.get_query_structure(query)
+        self.assertEqual(INVALID_QUERY_COUNT, e.exception.args[0])
 
     def test_incorrect_query(self):
         query = 'KIV'

@@ -18,6 +18,7 @@ class TelegramBot:
         # Handlers
         handler = TelegramHandler()
         self.dispatcher.add_handler(CommandHandler('start', handler.start))
+        self.dispatcher.add_handler(CommandHandler('help', handler.info_message))
         self.dispatcher.add_handler(MessageHandler(Filters.text, handler.user_message))
         self.dispatcher.add_handler(MessageHandler(Filters.command, handler.unknown))
         self.dispatcher.add_error_handler(handler.error)
@@ -47,7 +48,6 @@ class TelegramHandler:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text='⚠️ <i>Unknown command</i> ⚠️',
                                  parse_mode=ParseMode.HTML)
-        cls.info_message(update, context)
 
     @classmethod
     def error(cls, update, context) -> None:
@@ -55,7 +55,6 @@ class TelegramHandler:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=f'<i>{error_message}</i>',
                                  parse_mode=ParseMode.HTML)
-        cls.info_message(update, context)
 
     @classmethod
     def user_message(cls, update, context) -> None:
@@ -63,7 +62,6 @@ class TelegramHandler:
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=aviapages_api.generate_calculator_message(query),
                                  parse_mode=ParseMode.HTML)
-        cls.info_message(update, context)
 
     @staticmethod
     def info_message(update, context) -> None:
@@ -78,7 +76,13 @@ class TelegramHandler:
                   f' 🔘 KIV - VKO 2 pax Global 5000 no UHMM, Belarus\n' \
                   f' 🔘 EVRA - UUWW 5 Challenger 300 no ULAA, Ukraine\n' \
                   f' 🔘 KIV-RIX 3 E35L\n' \
-                  f'       RIX-VKO 3 Challenger 300'
+                  f'       RIX-VKO 3 Challenger 300\n' \
+                  f' 🔘 1. KIV-RIX 3 E35L\n' \
+                  f'       2. RIX-VKO 3 Challenger 300\n' \
+                  f' 🔘 1 KIV-RIX 3 E35L\n' \
+                  f'       2 RIX-VKO 3 Challenger 300\n' \
+                  f' 🔘 1) KIV-RIX 3 E35L\n' \
+                  f'       2) RIX-VKO 3 Challenger 300'
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=message,
                                  parse_mode=ParseMode.HTML)
@@ -91,6 +95,22 @@ def get_query_structure(text: str) -> list:
         if len(query.strip()) > 0:
             query_structures.append(get_query_part_structure(query))
 
+    # Control checkout for counts
+    if len(query_structures) > 1:
+        count_exists = False
+        for query_part in query_structures:
+            if query_part.get('count').isdigit():
+                count_exists = True
+                break
+        # 2 types of query: with counts / without counts
+        if count_exists:
+            # Checking if all counts are provided
+            for query_part in query_structures:
+                if not query_part.get('count').isdigit():
+                    raise ValueError('⚠️ Each line should be started with count number ⚠️')
+            # Sorting query by count
+            query_structures = sorted(query_structures, key=lambda d: d.get('count'))
+
     return query_structures
 
 
@@ -99,10 +119,26 @@ def get_query_part_structure(text: str) -> dict:
 
     # Text preparation for processing
     text = text.strip()
+    if len(text) == 0:
+        raise ValueError(invalid_query)
+
     # Removing duplicated "-"
     text = text.replace('—', '--')
     for i in range(4, 1, -1):
         text = text.replace('-' * i, '-')
+
+    # COUNT NUMBER (for multiple lines)
+    count = ''
+    for i in range(len(text)):
+        if text[i].isdigit():
+            count += text[i]
+        else:
+            break
+
+    # Current processing text update
+    text = text[i:].strip()
+    if text[0] == '.' or text[0] == ')':
+        text = text[1:].strip()
 
     text_parts = text.split('-', 1)
 
@@ -180,6 +216,7 @@ def get_query_part_structure(text: str) -> dict:
                 avoid.add(current_avoid.strip())
 
     return {
+        'count': count,
         'departure_airport': departure_airport,
         'arrival_airport': arrival_airport,
         'pax': int(pax),
