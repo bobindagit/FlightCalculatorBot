@@ -12,7 +12,8 @@ class TelegramBot:
         logger = logging.getLogger('TELEGRAM BOT')
 
         # Main telegram UPDATER
-        self.updater = Updater(token=os.environ.get('BOT_TOKEN'), use_context=True)
+        self.updater = Updater(token='5066321487:AAEa8QoWUfsKA_SCZL0YvkkciywxptysXZQ', use_context=True)
+        # self.updater = Updater(token=os.environ.get('BOT_TOKEN'), use_context=True)
         self.dispatcher = self.updater.dispatcher
 
         # Handlers
@@ -58,7 +59,8 @@ class TelegramHandler:
 
     @classmethod
     def user_message(cls, update, context) -> None:
-        query = get_query_structure(update.message.text)
+        # User can edit message or send new
+        query = get_query_structure(update.edited_message.text if update.message is None else update.message.text)
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=aviapages_api.generate_calculator_message(query),
                                  parse_mode=ParseMode.HTML)

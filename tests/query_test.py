@@ -165,11 +165,11 @@ class QueryTest(unittest.TestCase):
             }
         ]
         self.assertEqual(bot.get_query_structure(query), answer)
-        query = '2 KIV - RIX 1 Global 5000\n' \
-                '1 RIX-VKO 1 Global 5000'
+        query = '2) KIV - RIX 1 Global 5000\n' \
+                '1) RIX-VKO 1 Global 5000'
         answer = [
             {
-                'count': '2',
+                'count': '1',
                 'departure_airport': 'RIX',
                 'arrival_airport': 'VKO',
                 'pax': 1,
@@ -177,7 +177,7 @@ class QueryTest(unittest.TestCase):
                 'avoid': set()
             },
             {
-                'count': '1',
+                'count': '2',
                 'departure_airport': 'KIV',
                 'arrival_airport': 'RIX',
                 'pax': 1,
@@ -185,6 +185,9 @@ class QueryTest(unittest.TestCase):
                 'avoid': set()
             }
         ]
+        self.assertEqual(bot.get_query_structure(query), answer)
+
+    def test_incorrect_query_multiline(self):
         query = ' KIV - RIX 1 Global 5000\n' \
                 '2. RIX-VKO 1 Global 5000'
         with self.assertRaises(ValueError) as e:
@@ -267,7 +270,7 @@ class APIRequestTest(unittest.TestCase):
         pax = 3
         avoid = {'countries': [], 'firs': []}
         answer = {
-            'airway_time': '03:05',
+            'airway_time': 185,
             'airway_distance': 2426.934,
             'warnings': []
         }
@@ -286,7 +289,7 @@ class APIRequestTest(unittest.TestCase):
         pax = 2
         avoid = {'countries': [], 'firs': []}
         answer = {
-            'airway_time': '03:05',
+            'airway_time': 185,
             'airway_distance': 2426.934,
             'warnings': []
         }
@@ -305,7 +308,7 @@ class APIRequestTest(unittest.TestCase):
         pax = 2
         avoid = {'countries': [], 'firs': []}
         answer = {
-            'airway_time': '03:05',
+            'airway_time': 185,
             'airway_distance': 2426.934,
             'warnings': []
         }
@@ -324,7 +327,7 @@ class APIRequestTest(unittest.TestCase):
         pax = 2
         avoid = {'countries': [], 'firs': []}
         answer = {
-            'airway_time': '03:05',
+            'airway_time': 185,
             'airway_distance': 2426.934,
             'warnings': []
         }
@@ -345,7 +348,7 @@ class APIRequestTest(unittest.TestCase):
         pax = 1
         avoid = {'countries': ['Ukraine', 'Belarus'], 'firs': []}
         answer = {
-            'airway_time': '02:58',
+            'airway_time': 178,
             'airway_distance': 2322.858,
             'warnings': []
         }
@@ -364,7 +367,7 @@ class APIRequestTest(unittest.TestCase):
         pax = 1
         avoid = {'countries': ['Ukraine', 'Belarus'], 'firs': []}
         answer = {
-            'airway_time': '02:58',
+            'airway_time': 178,
             'airway_distance': 2322.858,
             'warnings': []
         }
@@ -383,7 +386,7 @@ class APIRequestTest(unittest.TestCase):
         pax = 5
         avoid = {'countries': [], 'firs': ['ULAA', 'UHMM']}
         answer = {
-            'airway_time': '01:35',
+            'airway_time': 95,
             'airway_distance': 1134.879,
             'warnings': []
         }
@@ -409,13 +412,13 @@ class APIRequestTest(unittest.TestCase):
 
     def test_avoid_parser(self):
         query = {'Ukraine', 'Belarus'}
-        answer = {'countries': {'Ukraine', 'Belarus'}, 'firs': set()}
-        self.assertEqual(aviapages_api.get_avoid_parameters(query), answer)
-        query = {'Ukraine', 'UHMM'}
-        answer = {'countries': {'Ukraine'}, 'firs': {'UHMM'}}
-        self.assertEqual(aviapages_api.get_avoid_parameters(query), answer)
-        query = {'USA', 'ULAA'}
-        answer = {'countries': {'USA'}, 'firs': {'ULAA'}}
+        answer_countries = ['Ukraine', 'Belarus']
+        answer_firs = []
+        answer = aviapages_api.get_avoid_parameters(query)
+        self.assertCountEqual(answer_countries, answer.get('countries'))
+        self.assertCountEqual(answer_firs, answer.get('firs'))
+        query = {'USA', 'UHMM'}
+        answer = {'countries': ['USA'], 'firs': ['UHMM']}
         self.assertEqual(aviapages_api.get_avoid_parameters(query), answer)
 
     # def test_aircraft_correct_request(self):
