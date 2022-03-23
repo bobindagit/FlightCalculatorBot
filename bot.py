@@ -68,15 +68,15 @@ class TelegramHandler:
     @staticmethod
     def info_message(update, context) -> None:
         message = f'<i>Enter query in the format</i>:\n' \
-                  f'[<b>DEPARTURE AIRPORT</b> ICAO/IATA/NAME] <b>-</b> [<b>ARRIVAL AIRPORT</b> ICAO/IATA/NAME] [<b>PASSENGER COUNT(PAX)</b>] [<b>AIRCRAFT</b>] [<b>no COUNTRIES, FIRs</b>]<b>*</b>\n\n' \
+                  f'[<b>DEPARTURE AIRPORT</b>] <b>-</b> [<b>ARRIVAL AIRPORT</b>] [<b>PASSENGER COUNT PAX*</b>] [<b>AIRCRAFT</b>] [<b>no COUNTRIES, FIRs</b>]<b>*</b>\n\n' \
+                  f'🟢 AIRPORT could be passed as ICAO/IATA/NAME\n' \
                   f'🟢 <b>*</b> - optional\n' \
-                  f'🟢 <b>Use multilines to add leg(s)</b>\n\n' \
+                  f'🟢 Use multilines to add leg(s)\n\n' \
                   f'<i>Examples</i>:\n' \
                   f' 🔘 UUWW - EVRA 2Pax Challenger 300\n' \
                   f' 🔘 KIV-RIX 3 E35L\n' \
                   f' 🔘 Heathrow - Geneva 3 pax Global 5000 (IASA regulations)\n' \
                   f' 🔘 KIV - VKO 2 pax Global 5000 no UHMM, Belarus\n' \
-                  f' 🔘 EVRA - UUWW 5 Challenger 300 no ULAA, Ukraine\n' \
                   f' 🔘 KIV-RIX 3 E35L\n' \
                   f'       RIX-VKO 3 Challenger 300\n' \
                   f' 🔘 1. KIV-RIX 3 E35L\n' \
