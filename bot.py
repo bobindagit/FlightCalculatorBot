@@ -12,8 +12,7 @@ class TelegramBot:
         logger = logging.getLogger('TELEGRAM BOT')
 
         # Main telegram UPDATER
-        self.updater = Updater(token='5066321487:AAEa8QoWUfsKA_SCZL0YvkkciywxptysXZQ', use_context=True)
-        # self.updater = Updater(token=os.environ.get('BOT_TOKEN'), use_context=True)
+        self.updater = Updater(token=os.environ.get('BOT_TOKEN'), use_context=True)
         self.dispatcher = self.updater.dispatcher
 
         # Handlers
