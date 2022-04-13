@@ -61,7 +61,7 @@ class TelegramHandler:
         # User can edit message or send new
         query = get_query_structure(update.edited_message.text if update.message is None else update.message.text)
         context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text=aviapages_api.generate_calculator_message(query),
+                                 text=aviapages_api.generate_calculator_message(update.effective_chat, query),
                                  parse_mode=ParseMode.HTML)
 
     @staticmethod
@@ -73,7 +73,7 @@ class TelegramHandler:
                   f'🟢 Use multilines to add leg(s)\n\n' \
                   f'<i>Examples</i>:\n' \
                   f' 🔘 UUWW - EVRA 2Pax Challenger 300\n' \
-                  f' 🔘 KIV-RIX 3 E35L\n' \
+                  f' 🔘 KIV RIX 3 E35L\n' \
                   f' 🔘 Heathrow - Geneva 3 pax Global 5000 (IASA regulations)\n' \
                   f' 🔘 KIV - VKO 2 pax Global 5000 no UHMM, Belarus\n' \
                   f' 🔘 KIV-RIX 3 E35L\n' \
@@ -141,10 +141,13 @@ def get_query_part_structure(text: str) -> dict:
     if text[0] == '.' or text[0] == ')':
         text = text[1:].strip()
 
+    # Splitting with -
     text_parts = text.split('-', 1)
-
     if len(text_parts) < 2:
-        raise ValueError(invalid_query)
+        # Splitting with space
+        text_parts = text.split(' ', 1)
+        if len(text_parts) < 2:
+            raise ValueError(invalid_query)
 
     # DEPARTURE
     departure_airport = text_parts[0].strip()
@@ -209,19 +212,19 @@ def get_query_part_structure(text: str) -> dict:
     current_avoid = ''
     for i in range(text_len):
         if text[i] == ',' or text[i] == ';':
-            avoid.add(current_avoid.strip())
+            avoid.add(current_avoid.strip().upper())
             current_avoid = ''
         else:
             current_avoid += text[i]
             if i == text_len - 1:
-                avoid.add(current_avoid.strip())
+                avoid.add(current_avoid.strip().upper())
 
     return {
         'count': count,
-        'departure_airport': departure_airport,
-        'arrival_airport': arrival_airport,
+        'departure_airport': departure_airport.upper(),
+        'arrival_airport': arrival_airport.upper(),
         'pax': int(pax),
-        'aircraft': aircraft.strip(),
+        'aircraft': aircraft.strip().upper(),
         'avoid': avoid
     }
 

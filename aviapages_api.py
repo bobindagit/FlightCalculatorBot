@@ -2,6 +2,8 @@ import requests
 import os
 import time
 
+from telegram import Chat
+
 HEADERS = {
     'Content-Type': 'application/json',
     'Authorization': os.environ.get('API_TOKEN')
@@ -86,7 +88,7 @@ def get_avoid_parameters(avoid: set) -> dict:
     }
 
 
-def generate_calculator_message(query: list) -> str:
+def generate_calculator_message(userdata: Chat, query: list) -> str:
     airway_total_time = 0
     airway_total_distance = 0
     all_warnings = ''
@@ -102,7 +104,7 @@ def generate_calculator_message(query: list) -> str:
         aircraft = query_params.get('aircraft')
         avoid = get_avoid_parameters(query_params.get('avoid'))
 
-        calculated_parameters = calculate_flight_parameters(departure_airport, arrival_airport, aircraft, passengers_count, avoid)
+        calculated_parameters = calculate_flight_parameters(get_user_info(userdata), departure_airport, arrival_airport, aircraft, passengers_count, avoid)
         airway_total_time += calculated_parameters.get("airway_time")
         airway_total_distance += calculated_parameters.get("airway_distance")
         for warning in calculated_parameters.get('warnings'):
@@ -124,6 +126,13 @@ def generate_calculator_message(query: list) -> str:
            f' ├ <b>Flight time</b>: {airway_time}\n' \
            f' └ <b>Flight distance</b>: {int(airway_total_distance)}km'
 
+
+def get_user_info(userdata: Chat) -> str:
+    if userdata.username:
+        return userdata.username
+    else:
+        return userdata.id
+    
 
 def generate_flight_info_message(departure_airport: dict, arrival_airport: dict, passengers_count: int, aircraft: str, avoid: dict, single_line: bool) -> str:
     departure = f'{departure_airport.get("airport_icao")} ({departure_airport.get("airport_iata")}), {departure_airport.get("airport_name")}'
@@ -156,7 +165,7 @@ def generate_avoid_message(avoid: dict) -> str:
     return avoid_message
 
 
-def calculate_flight_parameters(departure: dict, arrival: dict, aircraft: str, pax: int, avoid: dict) -> dict:
+def calculate_flight_parameters(username: str, departure: dict, arrival: dict, aircraft: str, pax: int, avoid: dict) -> dict:
 
     query = {
         'departure_airport': get_airport_find_parameter(departure),
@@ -164,7 +173,8 @@ def calculate_flight_parameters(departure: dict, arrival: dict, aircraft: str, p
         'aircraft': aircraft,
         'pax': pax,
         'avoid_countries': avoid.get('countries'),
-        'avoid_firs': avoid.get('firs')
+        'avoid_firs': avoid.get('firs'),
+        'username': username
     }
 
     # Additional parameters for query

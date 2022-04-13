@@ -15,11 +15,21 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'UUWW',
             'arrival_airport': 'EVRA',
             'pax': 2,
-            'aircraft': 'Challenger 300',
+            'aircraft': 'CHALLENGER 300',
             'avoid': set()
         }]
         self.assertEqual(bot.get_query_structure(query), answer)
-        query = 'KIV-RIX 3 E35L'
+        query = 'KIV RIX 3 E35L'
+        answer = [{
+            'count': '',
+            'departure_airport': 'KIV',
+            'arrival_airport': 'RIX',
+            'pax': 3,
+            'aircraft': 'E35L',
+            'avoid': set()
+        }]
+        self.assertEqual(bot.get_query_structure(query), answer)
+        query = 'kiv rix 3 e35l'
         answer = [{
             'count': '',
             'departure_airport': 'KIV',
@@ -32,10 +42,10 @@ class QueryTest(unittest.TestCase):
         query = 'Heathrow - Geneva 3 pax Global 5000 (IASA regulations)'
         answer = [{
             'count': '',
-            'departure_airport': 'Heathrow',
-            'arrival_airport': 'Geneva',
+            'departure_airport': 'HEATHROW',
+            'arrival_airport': 'GENEVA',
             'pax': 3,
-            'aircraft': 'Global 5000 (IASA regulations)',
+            'aircraft': 'GLOBAL 5000 (IASA REGULATIONS)',
             'avoid': set()
         }]
         self.assertEqual(bot.get_query_structure(query), answer)
@@ -65,8 +75,8 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'UUWW',
             'arrival_airport': 'EVRA',
             'pax': 2,
-            'aircraft': 'Global 5000',
-            'avoid': {'Ukraine', 'Belarus'}
+            'aircraft': 'GLOBAL 5000',
+            'avoid': {'UKRAINE', 'BELARUS'}
         }]
         self.assertEqual(bot.get_query_structure(query), answer)
         query = 'UUWW - EVRA 2 pax Global 5000 no ULAA; UHMM'
@@ -75,7 +85,7 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'UUWW',
             'arrival_airport': 'EVRA',
             'pax': 2,
-            'aircraft': 'Global 5000',
+            'aircraft': 'GLOBAL 5000',
             'avoid': {'ULAA', 'UHMM'}
         }]
         self.assertEqual(bot.get_query_structure(query), answer)
@@ -85,7 +95,7 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'UUWW',
             'arrival_airport': 'EVRA',
             'pax': 6,
-            'aircraft': 'Global 5000',
+            'aircraft': 'GLOBAL 5000',
             'avoid': {'ULAA', 'UHMM'}
         }]
         self.assertEqual(bot.get_query_structure(query), answer)
@@ -98,7 +108,7 @@ class QueryTest(unittest.TestCase):
             'departure_airport': 'KIV',
             'arrival_airport': 'RIX',
             'pax': 1,
-            'aircraft': 'Global 5000',
+            'aircraft': 'GLOBAL 5000',
             'avoid': set()
         }]
         self.assertEqual(bot.get_query_structure(query), answer)
@@ -110,7 +120,7 @@ class QueryTest(unittest.TestCase):
                 'departure_airport': 'KIV',
                 'arrival_airport': 'RIX',
                 'pax': 1,
-                'aircraft': 'Global 5000',
+                'aircraft': 'GLOBAL 5000',
                 'avoid': set()
             },
             {
@@ -118,7 +128,7 @@ class QueryTest(unittest.TestCase):
                 'departure_airport': 'RIX',
                 'arrival_airport': 'VKO',
                 'pax': 1,
-                'aircraft': 'Global 5000',
+                'aircraft': 'GLOBAL 5000',
                 'avoid': set()
             }
         ]
@@ -131,7 +141,7 @@ class QueryTest(unittest.TestCase):
                 'departure_airport': 'KIV',
                 'arrival_airport': 'RIX',
                 'pax': 1,
-                'aircraft': 'Global 5000',
+                'aircraft': 'GLOBAL 5000',
                 'avoid': set()
             },
             {
@@ -139,7 +149,7 @@ class QueryTest(unittest.TestCase):
                 'departure_airport': 'RIX',
                 'arrival_airport': 'VKO',
                 'pax': 1,
-                'aircraft': 'Global 5000',
+                'aircraft': 'GLOBAL 5000',
                 'avoid': set()
             }
         ]
@@ -152,7 +162,7 @@ class QueryTest(unittest.TestCase):
                 'departure_airport': 'KIV',
                 'arrival_airport': 'RIX',
                 'pax': 1,
-                'aircraft': 'Global 5000',
+                'aircraft': 'GLOBAL 5000',
                 'avoid': set()
             },
             {
@@ -160,7 +170,7 @@ class QueryTest(unittest.TestCase):
                 'departure_airport': 'RIX',
                 'arrival_airport': 'VKO',
                 'pax': 1,
-                'aircraft': 'Global 5000',
+                'aircraft': 'GLOBAL 5000',
                 'avoid': set()
             }
         ]
@@ -173,7 +183,7 @@ class QueryTest(unittest.TestCase):
                 'departure_airport': 'RIX',
                 'arrival_airport': 'VKO',
                 'pax': 1,
-                'aircraft': 'Global 5000',
+                'aircraft': 'GLOBAL 5000',
                 'avoid': set()
             },
             {
@@ -181,7 +191,7 @@ class QueryTest(unittest.TestCase):
                 'departure_airport': 'KIV',
                 'arrival_airport': 'RIX',
                 'pax': 1,
-                'aircraft': 'Global 5000',
+                'aircraft': 'GLOBAL 5000',
                 'avoid': set()
             }
         ]
