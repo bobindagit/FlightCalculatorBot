@@ -6,7 +6,7 @@ from telegram import Chat
 
 HEADERS = {
     'Content-Type': 'application/json',
-    'Authorization': os.environ.get('API_TOKEN')
+    'Authorization': f'Token {os.environ.get("API_TOKEN")}'
 }
 CALCULATOR_PARAMETERS = {
     "airway_time": True,
@@ -128,10 +128,8 @@ def generate_calculator_message(userdata: Chat, query: list) -> str:
 
 
 def get_user_info(userdata: Chat) -> str:
-    if userdata.username:
-        return userdata.username
-    else:
-        return userdata.id
+    username = userdata.full_name
+    return f'{username} ({userdata.username if userdata.username else userdata.id})'
     
 
 def generate_flight_info_message(departure_airport: dict, arrival_airport: dict, passengers_count: int, aircraft: str, avoid: dict, single_line: bool) -> str:
